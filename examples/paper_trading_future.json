@@ -1,0 +1,10 @@
+{
+  "consumer_id": "",
+  "consumer_secret": "",
+  "account_id": "",
+  "target_position": 0,
+  "target_offset": -5,
+  "account_type": "future",
+  "paper_trading": true,
+  "access_token": ""
+}

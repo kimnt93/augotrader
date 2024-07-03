@@ -1,0 +1,6 @@
+github.com/DataDog/go-python3 v0.0.0-20211102160307-40adc605f1fe h1:bNMi0HArOQY4899TKLi4RP7g9BZ2kwLOiVpoJHWxyFs=
+github.com/DataDog/go-python3 v0.0.0-20211102160307-40adc605f1fe/go.mod h1:7ctnOCLiUlwKO9GvAjusUF68edSbiHqC18gVPQF0ojA=
+github.com/sbinet/go-python v0.1.0 h1:WlS8dGoxKMt9/c54U4XQuVhQt79p0uJUdzopuDR4QaI=
+github.com/sbinet/go-python v0.1.0/go.mod h1:Pq31TCdgxj39xSYY/VAfsWWrFphYSmx3jmPHtotzQNY=
+github.com/tliron/py4go v0.0.0-20211224192835-798131e31c5b h1:n/uQUqGLvNpjN4o0lvpdGfRRcDOn5iWzCKP2QSPwwEQ=
+github.com/tliron/py4go v0.0.0-20211224192835-798131e31c5b/go.mod h1:PxsXV95eFcPYlpqikubOACNXjOyB/KicZkHadEBr66k=
