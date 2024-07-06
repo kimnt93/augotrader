@@ -1,10 +1,12 @@
 package main
 
-/*
-#cgo LDFLAGS: -L. -lserver
-#include "server.h"
-*/
-import "C"
+import (
+	"fmt"
+	"strconv"
+)
 
 func main() {
+	val, _ := strconv.Atoi("10")
+	fmt.Printf("Value is %d", val)
+	// cache.Ping()
 }

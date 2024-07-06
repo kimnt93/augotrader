@@ -1,52 +1,69 @@
 package config
 
 import (
-	"log"
-	"os"
+	"context"
 	"strconv"
+
+	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog/log"
-	"github.com/joho/godotenv"
 )
 
-type Config struct {
-	// Setup
-	TelegramBotID			string
-	TelegramBotToken		string
-	TelegramBotToken 		string
+const ()
 
-	// Continue
-	SendPositionSeconds int
-
-	RedisHost 			string
-	RedisPort 			string
-	RedisDB 			string
-	RedisUser 			string
-	RedisPassword 		string
+type TradingAccountConfig struct {
+	AccountId       string
+	TradingStraregy string
 }
 
-var ExecConfig Config
+type ExecConfig struct {
+	AccountId        string
+	TradingStrategy  string
+	LastestAlpha     string
+	TelegramBotId    string
+	TelegramBotToken string
+	AppPort          int
+}
 
+var Config ExecConfig
 
-func LoadEnv() {
-	err := godotenv.Load()
+func LoadExecConfigFromRedis(redisClient *redis.Client, ctx context.Context) {
+	accountConfig, err := redisClient.Get(ctx, "AUGOTRADER_MY_ACCOUNT_CONFIG.Q22023-SD01").Result()
 	if err != nil {
-	  log.Error().Msg("Error loading .env file")
+		log.Error().Msgf("Failed to load account_id from Redis: %v", err)
 	}
-  
-	sendPositionSeconds, _ := strconv.Atoi(getEnv("SEND_POSITION_SECONDS", "600"))
 
-	ExecConfig = Config{
-		TelegramBotID:      	getEnv("TELEGRAM_BOT_ID")
-		TelegramBotToken:      	getEnv("TELEGRAM_BOT_TOKEN")
-		TelegramBotToken:      	getEnv("TELEGRAM_CHAT_ID"),
-		
-		SendPositionSeconds: 	sendPositionSeconds
+	tradingStrategy, err := redisClient.Get(ctx, "trading_strategy").Result()
+	if err != nil {
+		log.Error().Msgf("Failed to load trading_strategy from Redis: %v", err)
+	}
 
-		RedisHost:     		getEnv("POSTGRES_HOST", "localhost"),
-		RedisPort:     		getEnv("POSTGRES_PORT", "6379"),
-		RedisDB:     		getEnv("POSTGRES_USER", "0"),
-		RedisUser: 			getEnv("REDIS_USER", ""),
-		RedisPassword:    	getEnv("REDIS_PASSWORD", ""),
+	lastestAlpha, err := redisClient.Get(ctx, "lastest_alpha").Result()
+	if err != nil {
+		log.Error().Msgf("Failed to load lastest_alpha from Redis: %v", err)
+	}
 
+	telegramBotId, err := redisClient.Get(ctx, "telegram_bot_id").Result()
+	if err != nil {
+		log.Error().Msgf("Failed to load telegram_bot_id from Redis: %v", err)
+	}
+
+	telegramBotToken, err := redisClient.Get(ctx, "telegram_bot_token").Result()
+	if err != nil {
+		log.Error().Msgf("Failed to load telegram_bot_token from Redis: %v", err)
+	}
+
+	appPort, err := redisClient.Get(ctx, "app_port").Result()
+	if err != nil {
+		log.Error().Msgf("Failed to load app_port from Redis: %v", err)
+	}
+	appPortInt, _ := strconv.Atoi(appPort)
+
+	Config = ExecConfig{
+		AccountId:        accountId,
+		TradingStrategy:  tradingStrategy,
+		LastestAlpha:     lastestAlpha,
+		TelegramBotId:    telegramBotId,
+		TelegramBotToken: telegramBotToken,
+		AppPort:          appPortInt,
 	}
 }

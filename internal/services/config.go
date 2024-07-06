@@ -1,3 +1,4 @@
+package services
 
 func GetMaxPosition() int {
 	return 0
