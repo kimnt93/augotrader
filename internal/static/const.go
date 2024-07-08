@@ -16,12 +16,6 @@ const (
 	CH_SIGNAL_CHANNEL string = "AUGOTRADER_EXEC_SIGNAL_CHANNEL"
 	CH_LASTEST_SIGNAL string = "AUGOTRADER_EXEC_LASTEST_SIGNAL"
 
-	// All account config
-	CH_ALL_ACCOUNT string = "AUGOTRADER_EXEC_ALL_ACCOUNTS" // contains all account ids
-
-	// Account login info
-	CH_ACCOUNT_LOGIN_INFO string = "AUGOTRADER_EXEC_ACCOUNT_LOGIN" // Account login info includes: api key, secret key, account id, etc
-
 	// Account trading config includes: strategy weights, target position, target offset, disabled status
 	CH_ACCOUNT_STRATEGY_WEIGHTS string = "AUGOTRADER_EXEC_ACCOUNT_STRATEGY_WEIGHTS"
 	CH_TARGET_OFFSET            string = "AUGOTRADER_EXEC_TARGET_OFFSET"
@@ -31,4 +25,14 @@ const (
 	// Lock account and symbol before execute trade config
 	CH_ACCOUNT_SYMBOL_LOCKED string = "AUGOTRADER_EXEC_ACCOUNT_SYMBOL_LOCKED"
 	DEFAULT_LOCK_TTL         int    = 5
+)
+
+// For account login and market data feed
+const (
+	// All account config
+	CFG_ALL_ACCOUNT string = "AUGOTRADER_CFG_ALL_ACCOUNTS" // contains all account ids
+
+	// Account login info
+	CFG_ACCOUNT_LOGIN_INFO string = "AUGOTRADER_CFG_ACCOUNT_LOGIN" // Account login info includes: api key, secret key, account id, etc
+	CFG_MARKET_DATA_FEED   string = "AUGOTRADER_CFG_MARKET_DATA_FEED"
 )

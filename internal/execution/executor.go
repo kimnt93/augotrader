@@ -74,7 +74,7 @@ func executeTrade(accountId string, symbol string) bool {
 		return false
 	}
 
-	pendingOrders, err = services.GetSymbolPendingOrders(accountId, symbol)
+	pendingOrders, err = services.GetAccountSymbolPendingOrders(accountId, symbol)
 	if err != nil {
 		log.Error().Msgf("Error getting pending orders: %v", err)
 		return false
@@ -96,7 +96,7 @@ func executeTrade(accountId string, symbol string) bool {
 	// 1. include 3 characters in upper case: round to lot 100
 	// 2. start with VN30: round to lot 1
 	// 3. other: float value
-	executeQty := expectedPosition - currentPosition + currentOffset - totalPendingQty
+	executeQty := expectedPosition - currentPosition.Position + currentOffset - totalPendingQty
 	if executeQty == 0 {
 		log.Info().Msgf("No trade needed for account %s, symbol %s", accountId, symbol)
 		return true

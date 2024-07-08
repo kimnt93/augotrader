@@ -39,67 +39,62 @@ func IsLockedAccountSymbol(accountId string, symbol string) (bool, error) {
 	return exists == 1, nil
 }
 
-func LockSymbol(symbol string) int {
+func LockSymbol(symbol string) (bool, error) {
 	key := fmt.Sprintf("%s.%s", static.CH_ACCOUNT_SYMBOL_LOCKED, symbol)
 	err := cache.RedisClient.Set(cache.Ctx, key, 1, time.Duration(static.DEFAULT_LOCK_TTL)*time.Second).Err()
 	if err != nil {
 		log.Error().Msgf("Failed to lock symbol: %v", err)
-		return 0
+		return false, err
 	}
-	return 1
+	return true, nil
 }
 
-func LockAccount(accountId string) int {
+func LockAccount(accountId string) (bool, error) {
 	key := fmt.Sprintf("%s.%s", static.CH_ACCOUNT_SYMBOL_LOCKED, accountId)
 	err := cache.RedisClient.Set(cache.Ctx, key, 1, time.Duration(static.DEFAULT_LOCK_TTL)*time.Second).Err()
 	if err != nil {
 		log.Error().Msgf("Failed to lock account: %v", err)
-		return 0
+		return false, err
 	}
-	return 1
+	return true, nil
 }
 
-func LockAccountSymbol(accountId string, symbol string) int {
+func LockAccountSymbol(accountId string, symbol string) (bool, error) {
 	key := fmt.Sprintf("%s.%s.%s", static.CH_ACCOUNT_SYMBOL_LOCKED, accountId, symbol)
 	err := cache.RedisClient.Set(cache.Ctx, key, 1, time.Duration(static.DEFAULT_LOCK_TTL)*time.Second).Err()
 	if err != nil {
 		log.Error().Msgf("Failed to lock account symbol: %v", err)
-		return 0
+		return false, err
 	}
-	return 1
+	return true, nil
 }
 
-func UnlockSymbol(symbol string) int {
+func UnlockSymbol(symbol string) (bool, error) {
 	key := fmt.Sprintf("%s.%s", static.CH_ACCOUNT_SYMBOL_LOCKED, symbol)
 	err := cache.RedisClient.Del(cache.Ctx, key).Err()
 	if err != nil {
 		log.Error().Msgf("Failed to unlock symbol: %v", err)
-		return 0
+		return false, err
 	}
-	return 1
+	return true, nil
 }
 
-func UnlockAccount(accountId string) int {
+func UnlockAccount(accountId string) (bool, error) {
 	key := fmt.Sprintf("%s.%s", static.CH_ACCOUNT_SYMBOL_LOCKED, accountId)
 	err := cache.RedisClient.Del(cache.Ctx, key).Err()
 	if err != nil {
 		log.Error().Msgf("Failed to unlock account: %v", err)
-		return 0
+		return false, err
 	}
-	return 1
+	return true, nil
 }
 
-func UnlockAccountSymbol(accountId string, symbol string) int {
+func UnlockAccountSymbol(accountId string, symbol string) (bool, error) {
 	key := fmt.Sprintf("%s.%s.%s", static.CH_ACCOUNT_SYMBOL_LOCKED, accountId, symbol)
 	err := cache.RedisClient.Del(cache.Ctx, key).Err()
 	if err != nil {
 		log.Error().Msgf("Failed to unlock account symbol: %v", err)
-		return 0
+		return false, err
 	}
-	return 1
-}
-
-func GetAllAccountIds() ([]string, error) {
-	key := static.CH_ACCOUNT_SYMBOL_LOCKED
-	return cache.RedisClient.SMembers(cache.Ctx, key).Result()
+	return true, nil
 }

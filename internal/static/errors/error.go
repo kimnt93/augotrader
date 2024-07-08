@@ -7,8 +7,11 @@ const (
 )
 
 const (
-	CREATE_ORDER_ERROR int = 1
-	CANCEL_ORDER_ERROR int = 1
+	CREATE_ORDER_SUCCESS int = 1
+	CREATE_ORDER_ERROR   int = 0
+
+	CANCEL_ORDER_SUCCESS int = 1
+	CANCEL_ORDER_ERROR   int = 0
 )
 
 // telegram

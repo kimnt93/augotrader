@@ -40,6 +40,16 @@ func GetKeyFloat(key string) (float64, error) {
 	return offset, nil
 }
 
+func SetKeyStr(key string, value interface{}) (bool, error) {
+	// Use Redis GET command to retrieve the value associated with the key
+	_, err := RedisClient.Set(Ctx, key, value, 0).Result()
+	if err != nil {
+		log.Error().Msgf("Failed to get key (%s) offset: %v", key, err)
+		return false, err
+	}
+	return false, nil
+}
+
 func GetKeyStr(key string) (string, error) {
 	// Use Redis GET command to retrieve the value associated with the key
 	str, err := RedisClient.Get(Ctx, key).Result()
