@@ -1,12 +1,6 @@
 package services
 
 import (
-	"augotrader/internal/cache"
-	"augotrader/internal/static"
-	"augotrader/internal/types"
-	"encoding/json"
-	"fmt"
-
 	"github.com/rs/zerolog/log"
 )
 
@@ -50,34 +44,34 @@ type CancelOrderRequest struct {
 type CancelOrderResponse struct {
 }
 
-func GetCurrentSignal(name string) types.Signal {
-	// Init default signal
-	var signal types.Signal
-	signal.Name = name
-	signal.Position = 0.0
-
-	// Get signal from hash
-	key := fmt.Sprintf("%s.%s", static.CH_ACCOUNT_DISABLED_PREFIX, name)
-	signalStr, err := cache.GetKeyStr(key)
-	if err == nil {
-		// Unmarshal the JSON string into the Signal struct
-		err = json.Unmarshal([]byte(signalStr), &signal)
-		if err != nil {
-			log.Error().Msgf("Failed to unmarshal signal (%s): %v", signalStr, err)
-		}
-	}
-
-	return signal
+type PendingOrder struct {
+	AccountId  string  `json:"account_id"`
+	OrderId    string  `json:"order_id"`
+	Symbol     string  `json:"symbol"`
+	OrderSide  string  `json:"order_side"`
+	OrderType  string  `json:"order_type"`
+	OrderPrice float64 `json:"order_price"`
+	OrderQty   int     `json:"order_qty"`
 }
 
-func CreateOrder(accountId string, orderType string) bool {
+func CreateOrder(accountId string, orderType string, orderPrice float64, orderSide string) bool {
 	log.Printf("Created")
+	return true
 }
 
 func CancelOrder(accountId string, orderId string) bool {
 	log.Printf("Created")
+	return true
 }
 
 func ModifyOrder() int {
 	return 1
+}
+
+func GetSymbolPendingOrders(accountId string, symbol string) ([]PendingOrder, error) {
+	return []PendingOrder{}, nil
+}
+
+func GetAllPendingOrders(accountId string) ([]PendingOrder, error) {
+	return []PendingOrder{}, nil
 }

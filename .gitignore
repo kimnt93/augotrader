@@ -7,7 +7,14 @@
 *.lo
 *.o
 *.obj
+
+# remove tester dev
+.vscode/
+.config/
 .idea/
+tester/
+dev/
+
 # Precompiled Headers
 *.gch
 *.pch

@@ -1,12 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"strconv"
+	"augotrader/internal/notibot"
 )
 
 func main() {
-	val, _ := strconv.Atoi("10")
-	fmt.Printf("Value is %d", val)
-	// cache.Ping()
+	notibot.InitTelegramBot()
+	notibot.SendSignalToTelegram("Send me")
 }

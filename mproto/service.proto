@@ -1,0 +1,311 @@
+syntax = "proto3";
+
+package grpc_ray;
+
+message AccountBalance {
+    string balance = 1;
+    string market_id = 2;
+    string account_id = 3;
+    float trading_pl = 4;
+    float floating_pl = 5;
+    float total_pl = 6;
+    float ee = 7;
+    float nav = 8;
+    float withdrawable = 9;
+    float fee = 10;
+    float interest = 11;
+    float commission = 12;
+}
+
+message CreatedOrder {
+    string symbol = 1;
+    string market_id = 2;
+    string account_id = 3;
+    string order_side = 4;
+    string order_type = 5;
+    double order_price = 6;
+    double order_qty = 7;
+    string order_id = 8;
+    string order_status = 9;
+    bool stop_order = 10;
+    double stop_price = 11;
+    string stop_type = 12;
+    double stop_step = 13;
+    double loss_step = 14;
+    double profit_step = 15;
+    double avg_price = 16;
+    double os_qty = 17;
+    double filled_qty = 18;
+}
+
+
+message MaxBuySellQty {
+    string market_id = 1;
+    string account_id = 2;
+    string symbol = 3;
+    string max_qty = 4;
+    float power = 5;
+}
+
+message StockPosition {
+    string symbol = 1;
+    string market_id = 2;
+    string account_id = 3;
+    string position = 4;
+    float trading_pl = 5;
+    float floating_pl = 6;
+    float market_price = 7;
+    float avg_price = 8;
+}
+
+message CurrentMarket {
+    string trading_time = 1;
+    string symbol = 2;
+    float current_price = 3;
+    float current_volume = 4;
+    float total_volume = 5;
+    float price_change = 6;
+    float change_percent = 7;
+    float ref_price = 8;
+    float ceiling_price = 9;
+    float floor_price = 10;
+    float open_price = 11;
+    float high_price = 12;
+    float low_price = 13;
+    float avg_price = 14;
+    float bid_price_01 = 15;
+    float bid_volume_01 = 16;
+    float ask_price_01 = 17;
+    float ask_volume_01 = 18;
+}
+
+
+service TradingService {
+    // CreateOrder, CancelOrder, ModifyOrder
+    rpc CreateOrder (CreateOrderRequest) returns (CreateOrderReply);
+    rpc CancelOrder (CancelOrderRequest) returns (CancelOrderReply);
+    rpc ModifyOrder (ModifyOrderRequest) returns (ModifyOrderReply);
+
+    // GetAccountBalance
+    rpc GetAccountBalance (GetAccountBalanceRequest) returns (GetAccountBalanceReply);
+
+    // GetMaxBySellQty
+    rpc GetMaxBySellQty (GetMaxBySellQtyRequest) returns (GetMaxBySellQtyReply);
+
+    // GetOrderHistory
+    rpc GetOrderHistory (GetOrderHistoryRequest) returns (GetOrderHistoryReply);
+
+    // GetPendingOrders
+    rpc GetPendingOrders (GetPendingOrdersRequest) returns (GetPendingOrdersReply);
+
+    // GetFilledOrders
+    rpc GetFilledOrders (GetFilledOrdersRequest) returns (GetFilledOrdersReply);
+
+    // GetPortfolio
+    rpc GetPortfolio (GetPortfolioRequest) returns (GetPortfolioReply);
+
+    // GetOpenPositions
+    rpc GetOpenPositions (GetOpenPositionsRequest) returns (GetOpenPositionsReply);
+
+    // GetPositionBySymbol
+    rpc GetOpenPositionBySymbol (GetOpenPositionBySymbolRequest) returns (GetOpenPositionBySymbolReply);
+
+    // GetClosePositions
+    rpc GetClosePositions (GetClosedPositionsRequest) returns (GetClosedPositionsReply);
+
+    // GetClosePositionBySymbol
+    rpc GetClosePositionBySymbol (GetClosedPositionBySymbolRequest) returns (GetClosedPositionBySymbolReply);
+
+    // access data from Ray
+
+    // GetCurrentPrice
+    rpc GetCurrentPrice (GetCurrentPriceRequest) returns (GetCurrentPriceReply);
+}
+
+message CreateOrderRequest {
+    string symbol = 1;
+    string market_id = 2;
+    string account_id = 3;
+    string order_side = 4;
+    string order_type = 5;
+    double order_price = 6;
+    double order_qty = 7;
+    bool stop_order = 8;
+    double stop_price = 9;
+    string stop_type = 10;
+    double stop_step = 11;
+    double loss_step = 12;
+    double profit_step = 13;
+}
+
+message CreateOrderReply {
+    bool success = 1;
+    CreatedOrder data = 2;
+}
+
+// Cancel order
+message CancelOrderRequest {
+    string symbol = 1;
+    string market_id = 2;
+    string account_id = 3;
+    string order_side = 4;
+    string order_type = 5;
+    double order_price = 6;
+    double order_qty = 7;
+    bool stop_order = 8;
+    double stop_price = 9;
+    string stop_type = 10;
+    double stop_step = 11;
+    double loss_step = 12;
+    double profit_step = 13;
+}
+
+message CancelOrderReply {
+    bool success = 1;
+    CreatedOrder data = 2;
+}
+
+// Modify order
+message ModifyOrderRequest {
+    string symbol = 1;
+    string market_id = 2;
+    string account_id = 3;
+    string order_side = 4;
+    string order_type = 5;
+    double order_price = 6;
+    double order_qty = 7;
+    bool stop_order = 8;
+    double stop_price = 9;
+    string stop_type = 10;
+    double stop_step = 11;
+    double loss_step = 12;
+    double profit_step = 13;
+
+    // new price, aty
+    double new_price = 14;
+    double new_qty = 15;
+}
+
+message ModifyOrderReply {
+    bool success = 1;
+    CreatedOrder data = 2;
+}
+
+// Complete all defined TradingService
+message GetAccountBalanceRequest {
+    string account_id = 1;
+}
+
+message GetAccountBalanceReply {
+    bool success = 1;
+    AccountBalance data = 2;
+}
+
+// GetMaxBySellQty
+// symbol, price, order_side
+message GetMaxBySellQtyRequest {
+    string symbol = 1;
+    double price = 2;
+    string order_side = 3;
+}
+
+message GetMaxBySellQtyReply {
+    bool success = 1;
+    MaxBuySellQty data = 2;
+}
+
+// positions
+message GetOpenPositionsRequest {
+    string account_id = 1;
+}
+
+message GetOpenPositionsReply {
+    bool success = 1;
+    map<string, StockPosition> data = 2;
+}
+
+message GetClosedPositionsRequest {
+    string account_id = 1;
+}
+
+message GetClosedPositionsReply {
+    bool success = 1;
+    map<string, StockPosition> data = 2;
+}
+
+// Position by symbol
+message GetOpenPositionBySymbolRequest {
+    string account_id = 1;
+    string symbol = 2;
+}
+
+message GetOpenPositionBySymbolReply {
+    bool success = 1;
+    StockPosition data = 2;
+}
+
+message GetClosedPositionBySymbolRequest {
+    string account_id = 1;
+    string symbol = 2;
+}
+
+message GetClosedPositionBySymbolReply {
+    bool success = 1;
+    StockPosition data = 2;
+}
+
+
+// Order history
+message GetOrderHistoryRequest {
+    string account_id = 1;
+    string order_status = 2;
+    string start_date = 3;
+    string end_date = 4;
+    int32 page = 5;
+    int32 page_size = 6;
+}
+
+message GetOrderHistoryReply {
+    bool success = 1;
+    repeated CreatedOrder data = 2;
+}
+
+// Pending orders
+message GetPendingOrdersRequest {
+    string account_id = 1;
+}
+
+message GetPendingOrdersReply {
+    bool success = 1;
+    repeated CreatedOrder data = 2;
+}
+
+// Get filled orders
+message GetFilledOrdersRequest {
+    string account_id = 1;
+}
+
+message GetFilledOrdersReply {
+    bool success = 1;
+    repeated CreatedOrder data = 2;
+}
+
+// Get GetPortfolio like position by return a list of StockPosition
+message GetPortfolioRequest {
+    string account_id = 1;
+}
+
+message GetPortfolioReply {
+    bool success = 1;
+    repeated StockPosition data = 2;
+}
+
+// Get current price
+message GetCurrentPriceRequest {
+    string symbol = 1;
+}
+
+message GetCurrentPriceReply {
+    bool success = 1;
+    CurrentMarket data = 2;
+}
