@@ -18,8 +18,7 @@ const (
 
 	// Account trading config includes: strategy weights, target position, target offset, disabled status
 	CH_ACCOUNT_STRATEGY_WEIGHTS string = "AUGOTRADER_EXEC_ACCOUNT_STRATEGY_WEIGHTS"
-	CH_TARGET_OFFSET            string = "AUGOTRADER_EXEC_TARGET_OFFSET"
-	CH_TARGET_POSITION          string = "AUGOTRADER_EXEC_TARGET_POSITION"
+	CH_ACCOUNT_BOOKSIZE_CONFIG  string = "AUGOTRADER_EXEC_ACCOUNT_BOOKSIZE_CONFIG"
 	CH_ACCOUNT_DISABLED         string = "AUGOTRADER_EXEC_ACCOUNT_DISABLED"
 
 	// Lock account and symbol before execute trade config

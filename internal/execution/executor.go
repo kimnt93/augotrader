@@ -21,9 +21,9 @@ func executeTrade(accountId string, symbol string) bool {
 	}
 
 	// Check if account is disabled
-	disabled, err := services.IsDisabledAccount(accountId)
-	if err != nil || disabled {
-		log.Error().Msgf("Account %s is disabled (disabled=%b) or checking error: %v", accountId, disabled, err)
+	booksizeConfig, err := services.GetCurrentBooksize(accountId, symbol)
+	if err != nil || booksizeConfig.IsDisabled {
+		log.Error().Msgf("Account %s is disabled (disabled=%b) or checking error: %v", accountId, booksizeConfig.IsDisabled, err)
 		return false
 	}
 
@@ -52,11 +52,8 @@ func executeTrade(accountId string, symbol string) bool {
 	}
 
 	// Get target position
-	targetPosition, err := services.GetTargetPosition(accountId, symbol)
-	if err != nil {
-		log.Error().Msgf("Error getting target position: %v", err)
-		return false
-	}
+	targetPosition := booksizeConfig.TargetPosition
+	currentOffset := booksizeConfig.Offset
 
 	expectedPosition := positionWeight * targetPosition
 
@@ -68,13 +65,7 @@ func executeTrade(accountId string, symbol string) bool {
 	}
 
 	// get accouht current offset
-	currentOffset, err := services.GetCurrentOffset(accountId, symbol)
-	if err != nil {
-		log.Error().Msgf("Error getting current offset: %v", err)
-		return false
-	}
-
-	pendingOrders, err = services.GetAccountSymbolPendingOrders(accountId, symbol)
+	pendingOrders, err := services.GetAccountSymbolPendingOrders(accountId, symbol)
 	if err != nil {
 		log.Error().Msgf("Error getting pending orders: %v", err)
 		return false
@@ -83,10 +74,10 @@ func executeTrade(accountId string, symbol string) bool {
 	// loop over pending orders and calculate total pending quantity
 	totalPendingQty := 0.0
 	for _, order := range pendingOrders {
-		if order.Side == trading.BUY_SIDE {
-			totalPendingQty += order.Quantity
+		if order.OrderSide == trading.BUY_SIDE {
+			totalPendingQty += order.OrderQty
 		} else {
-			totalPendingQty -= order.Quantity
+			totalPendingQty -= order.OrderQty
 		}
 	}
 
@@ -100,18 +91,19 @@ func executeTrade(accountId string, symbol string) bool {
 	if executeQty == 0 {
 		log.Info().Msgf("No trade needed for account %s, symbol %s", accountId, symbol)
 		return true
-	}
+	} else {
+		// excute side B or S
+		executeSide := trading.BUY_SIDE
+		if executeQty < 0 {
+			executeSide = "S"
+			executeQty = math.Abs(executeQty)
+		}
 
-	// excute side B or S
-	executeSide := trading.BUY_SIDE
-	if executeQty < 0 {
-		executeSide = "S"
-		executeQty = math.Abs(executeQty)
+		// Execute trade
+		// Create/cancel, etc
+		currentExecutePrice := 0.0
+		services.CreateOrder(accountId, symbol, currentExecutePrice, executeSide, executeQty)
 	}
-
-	// Execute trade
-	// Create/cancel, etc
-	services.CreateOrder(accountId, symbol, executeSide, executeQty)
 
 	// Release the lock for the next trade
 	services.UnlockAccountSymbol(accountId, symbol)
@@ -126,7 +118,7 @@ func Run() {
 	ch := pubsub.Channel()
 
 	for msg := range ch {
-		allAccountids, err := services.GetAllAccountIds()
+		allAccountids, err := services.GetAllLoginInfo()
 		if err != nil {
 			log.Error().Msgf("Error getting all account ids: %v", err)
 			continue
@@ -135,9 +127,13 @@ func Run() {
 		log.Info().Msgf("Received signal action symbol: %s", receivedActionSymbol)
 
 		// Loop all accounts and execute trade
-		for _, accountId := range allAccountids {
+		for _, loginInfo := range allAccountids {
+			if loginInfo.IsDisabled {
+				log.Info().Msgf("Account %s is disabled", loginInfo.AccountId)
+				continue
+			}
 			// Run in goroutine for each accountId
-			go executeTrade(accountId, receivedActionSymbol)
+			go executeTrade(loginInfo.AccountId, receivedActionSymbol)
 		}
 
 		// Start send Signal to Telegram

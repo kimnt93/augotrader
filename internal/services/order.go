@@ -27,7 +27,7 @@ type CreatedOrder struct {
 	AvgPrice    float64 `json:"avg_price"`
 }
 
-func CreateOrder(accountId string, orderType string, orderPrice float64, orderSide string) int {
+func CreateOrder(accountId string, orderType string, orderPrice float64, orderSide string, orderQty float64) int {
 	log.Printf("Created")
 	return errors.CREATE_ORDER_ERROR
 }

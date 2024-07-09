@@ -13,12 +13,19 @@ func SetupRoutes() *mux.Router {
 	// Serve Swagger UI
 	r.PathPrefix("/#docs").Handler(httpSwagger.WrapHandler)
 
-	// login services
+	// login and account services
 	r.HandleFunc("/login", handlers.CreateLoginHandler).Methods("POST")
-	r.HandleFunc("/logins", handlers.GetAllLoginsHandler).Methods("GET")
+	r.HandleFunc("/login", handlers.CreateLoginHandler).Methods("PUT")
 	r.HandleFunc("/login/{accountId}", handlers.GetLoginByAccountIdHandler).Methods("GET")
+	r.HandleFunc("/login/{accountId}", handlers.DeleteLoginInfoHandler).Methods("DELETE")
+	r.HandleFunc("/logins", handlers.GetAllLoginsHandler).Methods("GET")
 
-	// account services
+	// config
+
+	// offset
+	r.HandleFunc("/booksize", handlers.SetBooksizeConfigHandler).Methods("POST")
+	r.HandleFunc("/booksize", handlers.SetBooksizeConfigHandler).Methods("PUT")
+	r.HandleFunc("/booksize/{accountId}", handlers.GetBooksizeByAccountHandler).Methods("GET")
 
 	return r
 }

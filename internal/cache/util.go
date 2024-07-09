@@ -40,6 +40,16 @@ func GetKeyFloat(key string) (float64, error) {
 	return offset, nil
 }
 
+func SetKeyFloat(key string, value float64) (bool, error) {
+	// Use Redis GET command to retrieve the value associated with the key
+	_, err := RedisClient.Set(Ctx, key, value, 0).Result()
+	if err != nil {
+		log.Error().Msgf("Failed to get key (%s) offset: %v", key, err)
+		return false, err
+	}
+	return false, nil
+}
+
 func SetKeyStr(key string, value interface{}) (bool, error) {
 	// Use Redis GET command to retrieve the value associated with the key
 	_, err := RedisClient.Set(Ctx, key, value, 0).Result()
@@ -75,4 +85,30 @@ func GetKeyBoolean(key string) (bool, error) {
 		return false, err
 	}
 	return val != 0, nil
+}
+
+func SetKeyBoolean(key string, value bool) (bool, error) {
+	// Convert the boolean value to an integer
+	val := 0
+	if value {
+		val = 1
+	}
+
+	// Use Redis GET command to retrieve the value associated with the key
+	_, err := RedisClient.Set(Ctx, key, val, 0).Result()
+	if err != nil {
+		log.Error().Msgf("Failed to get key (%s) offset: %v", key, err)
+		return false, err
+	}
+	return false, nil
+}
+
+func DeleteKey(key string) (bool, error) {
+	// Use Redis GET command to retrieve the value associated with the key
+	_, err := RedisClient.Del(Ctx, key).Result()
+	if err != nil {
+		log.Error().Msgf("Failed to get key (%s) offset: %v", key, err)
+		return false, err
+	}
+	return false, nil
 }
