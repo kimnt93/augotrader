@@ -3,6 +3,8 @@ package routes
 import (
 	"augotrader/internal/handlers"
 
+	"net/http"
+
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	"github.com/gorilla/mux"
@@ -11,7 +13,8 @@ import (
 func SetupRoutes() *mux.Router {
 	r := mux.NewRouter()
 	// Serve Swagger UI
-	r.PathPrefix("/#docs").Handler(httpSwagger.WrapHandler)
+	r.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./web/templates")))
 
 	// login and account services
 	r.HandleFunc("/login", handlers.CreateLoginHandler).Methods("POST")

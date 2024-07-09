@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Account List</title>
+    <script>
+        async function fetchAccounts() {
+            try {
+                const response = await fetch('/logins');
+                const data = await response.json();
+                const table = document.getElementById('accounts-table');
+
+                data.forEach(account => {
+                    const row = table.insertRow();
+                    row.onclick = () => {
+                        window.location.href = `/account/${account.AccountId}/booksize`;
+                    };
+
+                    const cell1 = row.insertCell(0);
+                    const cell2 = row.insertCell(1);
+                    const cell3 = row.insertCell(2);
+
+                    cell1.innerHTML = account.AccountId;
+                    cell2.innerHTML = account.IsPaperTrading ? "Yes" : "No";
+                    cell3.innerHTML = account.IsDisabled ? "Yes" : "No";
+                });
+            } catch (error) {
+                console.error('Error fetching accounts:', error);
+            }
+        }
+
+        window.onload = fetchAccounts;
+    </script>
+</head>
+<body>
+    <h1>Account List</h1>
+    <table id="accounts-table" border="1">
+        <tr>
+            <th>Account ID</th>
+            <th>Is Paper Trading</th>
+            <th>Is Disabled</th>
+        </tr>
+    </table>
+</body>
+</html>

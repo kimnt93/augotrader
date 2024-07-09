@@ -9,6 +9,8 @@ import (
 
 func main() {
 	r := routes.SetupRoutes()
+	http.Handle("/", r)
+
 	log.Info().Msg("Server starting on port 8080")
 	log.Fatal().Err(http.ListenAndServe(":8080", r)).Msg("Server stopped")
 }
