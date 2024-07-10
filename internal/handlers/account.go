@@ -9,27 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type CreateLoginRequest = services.LoginInfo
-
-type DeleteLoginByAccountIdResponse struct {
-	Success bool                 `json:"success"`
-	Data    []services.LoginInfo `json:"data"`
-}
-
-type GetLoginByAccountIdResponse struct {
-	Success bool                 `json:"success"`
-	Data    []services.LoginInfo `json:"data"`
-}
-
-type CreateLoginResponse struct {
-	Success bool                 `json:"success"`
-	Data    []services.LoginInfo `json:"data"`
-}
-
-type GetAllLoginsResponse struct {
-	Success bool                 `json:"success"`
-	Data    []services.LoginInfo `json:"data"`
-}
+type CreateLoginRequest = types.LoginInfo
 
 // @Summary Create a login entry
 // @Description Create a login entry using the provided login information
@@ -41,13 +21,13 @@ type GetAllLoginsResponse struct {
 func CreateLoginHandler(w http.ResponseWriter, r *http.Request) {
 	var loginInfo CreateLoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&loginInfo); err != nil {
-		response := types.DefaultErrorResponse{Success: false, Error: err.Error()}
+		response := NewErrorResponse[types.LoginInfo](err.Error())
 		json.NewEncoder(w).Encode(response)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	success, err := services.SetLoginInfoByAccountId(
+	loginInfo, err := services.SetLoginInfoByAccountId(
 		loginInfo.AccountId,
 		loginInfo.ConsumerId,
 		loginInfo.ConsumerSecret,
@@ -56,14 +36,14 @@ func CreateLoginHandler(w http.ResponseWriter, r *http.Request) {
 		loginInfo.IsPaperTrading,
 		loginInfo.IsDisabled,
 	)
-	if err != nil || !success {
-		response := types.DefaultErrorResponse{Success: false, Error: err.Error()}
+	if err != nil {
+		response := NewErrorResponse[types.LoginInfo](err.Error())
 		json.NewEncoder(w).Encode(response)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	response := CreateLoginResponse{Success: true, Data: []services.LoginInfo{loginInfo}}
+	response := NewSuccessResponse[types.LoginInfo](loginInfo)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 	w.WriteHeader(http.StatusCreated)
@@ -75,15 +55,15 @@ func CreateLoginHandler(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} GetAllLoginsResponse
 // @Router /login [get]
 func GetAllLoginsHandler(w http.ResponseWriter, r *http.Request) {
-	logins, err := services.GetAllLoginInfo()
+	loginInfos, err := services.GetAllLoginInfo()
 	if err != nil {
-		response := types.DefaultErrorResponse{Success: false, Error: err.Error()}
+		response := NewErrorResponse[types.LoginInfo](err.Error())
 		json.NewEncoder(w).Encode(response)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	response := GetAllLoginsResponse{Success: true, Data: logins}
+	response := NewSuccessResponse[types.LoginInfo](loginInfos)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
@@ -98,15 +78,15 @@ func GetLoginByAccountIdHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	accountId := vars["accountId"]
 
-	login, err := services.GetLoginInfoByAccountId(accountId)
+	loginInfo, err := services.GetLoginInfoByAccountId(accountId)
 	if err != nil {
-		response := types.DefaultErrorResponse{Success: false, Error: err.Error()}
+		response := NewErrorResponse[types.LoginInfo](err.Error())
 		json.NewEncoder(w).Encode(response)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	response := GetLoginByAccountIdResponse{Success: true, Data: []services.LoginInfo{login}}
+	response := NewSuccessResponse[types.LoginInfo](loginInfo)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
@@ -123,13 +103,14 @@ func DeleteLoginInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 	loginInfo, err := services.DeleteLoginInfoByAccountId(accountId)
 	if err != nil {
-		response := types.DefaultErrorResponse{Success: false, Error: err.Error()}
+		response := NewErrorResponse[types.LoginInfo](err.Error())
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
 		return
 	}
 
-	response := DeleteLoginByAccountIdResponse{Success: true, Data: []services.LoginInfo{loginInfo}}
+	response := NewSuccessResponse[types.LoginInfo](loginInfo)
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }

@@ -1,33 +1,19 @@
 package services
 
-type CurrentPostion struct {
-	AccountId string  `json:"account_id"`
-	Symbol    string  `json:"symbol"`
-	Position  float64 `json:"position"`
-	AvgPrice  float64 `json:"avg_price"`
+import "augotrader/internal/types"
+
+func GetCurrentPositions(accountId string) ([]types.CurrentPostion, error) {
+	return []types.CurrentPostion{}, nil
 }
 
-type AccountPortfolio struct {
-	AccountId string `json:"account_id"`
+func GetCurrentPosition(accountId string, symbol string) (types.CurrentPostion, error) {
+	return types.CurrentPostion{}, nil
 }
 
-type AccountBalance struct {
-	AccountId string  `json:"account_id"`
-	Balance   float64 `json:"balance"`
+func GetAccountPortfolio(accountId string) (types.AccountPortfolio, error) {
+	return types.AccountPortfolio{}, nil
 }
 
-func GetCurrentPositions(accountId string) ([]CurrentPostion, error) {
-	return []CurrentPostion{}, nil
-}
-
-func GetCurrentPosition(accountId string, symbol string) (CurrentPostion, error) {
-	return CurrentPostion{}, nil
-}
-
-func GetAccountPortfolio(accountId string) (AccountPortfolio, error) {
-	return AccountPortfolio{}, nil
-}
-
-func GetAccountBalance(accountId string) (AccountBalance, error) {
-	return AccountBalance{}, nil
+func GetAccountBalance(accountId string) (types.AccountBalance, error) {
+	return types.AccountBalance{}, nil
 }

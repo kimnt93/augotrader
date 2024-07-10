@@ -9,17 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type SetBooksizeConfigRequest = services.AccountBookSizeConfig
-
-type SetBooksizeConfigResponse struct {
-	Success bool                           `json:"success"`
-	Data    services.AccountBookSizeConfig `json:"data"`
-}
-
-type GetBooksizeConfigByAccountResponse struct {
-	Success bool                             `json:"success"`
-	Data    []services.AccountBookSizeConfig `json:"data"`
-}
+type SetBooksizeConfigRequest = types.AccountBookSizeConfig
 
 // IsDisabledAccountHandler checks if an account is disabled
 // @Summary Check if account is disabled
@@ -32,7 +22,7 @@ type GetBooksizeConfigByAccountResponse struct {
 func SetBooksizeConfigHandler(w http.ResponseWriter, r *http.Request) {
 	var req SetBooksizeConfigRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		response := types.DefaultErrorResponse{Success: false, Error: err.Error()}
+		response := NewErrorResponse[types.AccountBookSizeConfig](err.Error())
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
 		return
@@ -40,13 +30,13 @@ func SetBooksizeConfigHandler(w http.ResponseWriter, r *http.Request) {
 
 	booksizeConfig, err := services.SetCurrentBookSize(req.AccountId, req.Symbol, req.TargetPosition, req.Offset, req.IsDisabled)
 	if err != nil {
-		response := types.DefaultErrorResponse{Success: false, Error: err.Error()}
+		response := NewErrorResponse[types.AccountBookSizeConfig](err.Error())
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
 		return
 	}
 
-	response := SetBooksizeConfigResponse{Success: true, Data: booksizeConfig}
+	response := NewSuccessResponse[types.AccountBookSizeConfig](booksizeConfig)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
@@ -65,13 +55,13 @@ func GetBooksizeByAccountHandler(w http.ResponseWriter, r *http.Request) {
 
 	booksizeConfigs, err := services.GetBooksizeByAccount(accountId)
 	if err != nil {
-		response := types.DefaultErrorResponse{Success: false, Error: err.Error()}
+		response := NewErrorResponse[types.AccountBookSizeConfig](err.Error())
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
 		return
 	}
 
-	response := GetBooksizeConfigByAccountResponse{Success: true, Data: booksizeConfigs}
+	response := NewSuccessResponse[types.AccountBookSizeConfig](booksizeConfigs)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }

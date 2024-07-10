@@ -30,5 +30,10 @@ func SetupRoutes() *mux.Router {
 	r.HandleFunc("/booksize", handlers.SetBooksizeConfigHandler).Methods("PUT")
 	r.HandleFunc("/booksize/{accountId}", handlers.GetBooksizeByAccountHandler).Methods("GET")
 
+	// View detail
+	// signal by name and symbol
+	r.HandleFunc("/signal/symbol/{symbol}", handlers.GetSignalBySymbol).Methods("GET")
+	r.HandleFunc("/signal/name/{symbol}", handlers.GetSignalByName).Methods("GET")
+
 	return r
 }

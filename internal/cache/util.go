@@ -60,6 +60,16 @@ func SetKeyStr(key string, value interface{}) (bool, error) {
 	return false, nil
 }
 
+func GetKeys(pattern string) ([]string, error) {
+	// Use Redis KEYS command to retrieve the keys matching the pattern
+	keys, err := RedisClient.Keys(Ctx, pattern).Result()
+	if err != nil {
+		log.Error().Msgf("Failed to get keys (%s) offset: %v", pattern, err)
+		return nil, err
+	}
+	return keys, nil
+}
+
 func GetKeyStr(key string) (string, error) {
 	// Use Redis GET command to retrieve the value associated with the key
 	str, err := RedisClient.Get(Ctx, key).Result()

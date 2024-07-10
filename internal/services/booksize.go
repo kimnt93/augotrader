@@ -3,22 +3,15 @@ package services
 import (
 	"augotrader/internal/cache"
 	"augotrader/internal/static"
+	"augotrader/internal/types"
 	"encoding/json"
 	"fmt"
 
 	"github.com/rs/zerolog/log"
 )
 
-type AccountBookSizeConfig struct {
-	AccountId      string  `json:"account_id"`
-	Symbol         string  `json:"symbol"`
-	TargetPosition float64 `json:"target_position"`
-	Offset         float64 `json:"offset"`
-	IsDisabled     bool    `json:"is_disabled"`
-}
-
-func GetBooksizeByAccount(accountId string) ([]AccountBookSizeConfig, error) {
-	var result []AccountBookSizeConfig
+func GetBooksizeByAccount(accountId string) ([]types.AccountBookSizeConfig, error) {
+	var result []types.AccountBookSizeConfig
 	pattern := fmt.Sprintf("%s.%s.*", static.CH_ACCOUNT_BOOKSIZE_CONFIG, accountId)
 	// Find all keys that match the pattern
 	keys, err := cache.RedisClient.Keys(cache.Ctx, pattern).Result()
@@ -30,7 +23,7 @@ func GetBooksizeByAccount(accountId string) ([]AccountBookSizeConfig, error) {
 		// Get the JSON string from Redis
 		jsonStr, err := cache.GetKeyStr(key)
 		// unmashal the JSON string into a map
-		var booksizeConfig AccountBookSizeConfig
+		var booksizeConfig types.AccountBookSizeConfig
 		err = json.Unmarshal([]byte(jsonStr), &booksizeConfig)
 		if err != nil {
 			continue
@@ -41,8 +34,8 @@ func GetBooksizeByAccount(accountId string) ([]AccountBookSizeConfig, error) {
 
 }
 
-func GetCurrentBooksize(accountId string, symbol string) (AccountBookSizeConfig, error) {
-	var result AccountBookSizeConfig
+func GetCurrentBooksize(accountId string, symbol string) (types.AccountBookSizeConfig, error) {
+	var result types.AccountBookSizeConfig
 
 	key := fmt.Sprintf("%s.%s.%s", static.CH_ACCOUNT_BOOKSIZE_CONFIG, accountId, symbol)
 	jsonStr, err := cache.GetKeyStr(key)
@@ -61,9 +54,9 @@ func GetCurrentBooksize(accountId string, symbol string) (AccountBookSizeConfig,
 
 }
 
-func SetCurrentBookSize(accountId string, symbol string, target_position, target_offset float64, is_disabled bool) (AccountBookSizeConfig, error) {
+func SetCurrentBookSize(accountId string, symbol string, target_position, target_offset float64, is_disabled bool) (types.AccountBookSizeConfig, error) {
 	// Create new booksize config object
-	booksizeConfig := AccountBookSizeConfig{
+	booksizeConfig := types.AccountBookSizeConfig{
 		AccountId:      accountId,
 		Symbol:         symbol,
 		TargetPosition: target_position,
