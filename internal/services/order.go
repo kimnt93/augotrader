@@ -38,13 +38,13 @@ func CancelAccountPendingOrders(accountId string) int {
 }
 
 func CancelAllPendingOrders() int {
-	accountIds, err := GetAllAccountIds()
+	allAccounts, err := GetAllAccounts()
 	if err != nil {
 		return errors.CANCEL_ORDER_ERROR
 	}
 	//  Loop and cancel by account id
-	for _, accountId := range accountIds {
-		CancelAccountPendingOrders(accountId)
+	for _, account := range allAccounts {
+		CancelAccountPendingOrders(account.AccountId)
 	}
 	return errors.CANCEL_ORDER_SUCCESS
 }

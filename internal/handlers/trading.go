@@ -10,13 +10,13 @@ import (
 )
 
 // GetAccountBalanceHandler gets the current positions for the given account
-// @Summary Get current acciunt balance
-// @Description Get current balance for the given account
-// @Produce json
-// @Param accountId path string true "Account ID"
-// @Success 200 {object} GetCurrentPositionsResponse
-// @Failure 500 {object} types.DefaultErrorResponse
-// @Router /trading/balance/{accountId} [get]
+//	@Summary		Get current acciunt balance
+//	@Description	Get current balance for the given account
+//	@Produce		json
+//	@Param			accountId	path		string	true	"Account ID"
+//	@Success		200			{object}	GetCurrentPositionsResponse
+//	@Failure		500			{object}	types.DefaultErrorResponse
+//	@Router			/trading/balance/{accountId} [get]
 func GetAccountBalanceHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	accountId := vars["accountId"]
@@ -37,13 +37,13 @@ func GetAccountBalanceHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetAccountPortfolioHandler gets the current symbol, position for the given account
-// @Summary Get current account portfolio
-// @Description Get current portfolio for the given account
-// @Produce json
-// @Param accountId path string true "Account ID"
-// @Success 200 {object} GetCurrentPortfolioResponse
-// @Failure 500 {object} types.DefaultErrorResponse
-// @Router /trading/portfolio/{accountId} [get]
+//	@Summary		Get current account portfolio
+//	@Description	Get current portfolio for the given account
+//	@Produce		json
+//	@Param			accountId	path		string	true	"Account ID"
+//	@Success		200			{object}	GetCurrentPortfolioResponse
+//	@Failure		500			{object}	types.DefaultErrorResponse
+//	@Router			/trading/portfolio/{accountId} [get]
 func GetAccountPortfolioHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	accountId := vars["accountId"]

@@ -13,7 +13,7 @@ const (
 	CH_LATEST_BAR    string = "AUGOTRADER_EXEC_LATEST_BAR"
 
 	// Signal config
-	CH_SIGNAL_CHANNEL string = "AUGOTRADER_EXEC_SIGNAL_CHANNEL"
+	CH_SIGNAL_CHANNEL string = "AUGOTRADER_EXEC_SIGNAL_CHANNEL" // Store recent signals: <PREFIX>.[{SIGNAL_NAME} = {SYMBOL}_{NAME}]
 	CH_LASTEST_SIGNAL string = "AUGOTRADER_EXEC_LASTEST_SIGNAL"
 
 	// Account trading config includes: strategy weights, target position, target offset, disabled status

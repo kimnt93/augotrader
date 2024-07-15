@@ -12,26 +12,39 @@ import (
 
 func GetBooksizeByAccount(accountId string) ([]types.AccountBookSizeConfig, error) {
 	var result []types.AccountBookSizeConfig
+
+	// Define the pattern to match keys in Redis
 	pattern := fmt.Sprintf("%s.%s.*", static.CH_ACCOUNT_BOOKSIZE_CONFIG, accountId)
+
 	// Find all keys that match the pattern
 	keys, err := cache.RedisClient.Keys(cache.Ctx, pattern).Result()
-
 	if err != nil {
 		return result, err
 	}
+
+	// Iterate through each key found
 	for _, key := range keys {
 		// Get the JSON string from Redis
 		jsonStr, err := cache.GetKeyStr(key)
-		// unmashal the JSON string into a map
+		if err != nil {
+			// Log or handle error, but continue to the next key
+			continue
+		}
+
+		// Unmarshal the JSON string into a map
 		var booksizeConfig types.AccountBookSizeConfig
 		err = json.Unmarshal([]byte(jsonStr), &booksizeConfig)
 		if err != nil {
+			// Log or handle error, but continue to the next key
 			continue
 		}
+
+		// Append the successfully unmarshaled configuration to the result slice
 		result = append(result, booksizeConfig)
 	}
-	return result, nil
 
+	// Return an empty slice if no configurations were found
+	return result, nil
 }
 
 func GetCurrentBooksize(accountId string, symbol string) (types.AccountBookSizeConfig, error) {
@@ -51,7 +64,19 @@ func GetCurrentBooksize(accountId string, symbol string) (types.AccountBookSizeC
 	}
 
 	return result, nil
+}
 
+func DeleteCurrentBookSize(accountId string, symbol string) (types.AccountBookSizeConfig, error) {
+	accountBooksize, err := GetCurrentBooksize(accountId, symbol)
+	if err != nil {
+		return accountBooksize, err
+	}
+	key := fmt.Sprintf("%s.%s.%s", static.CH_ACCOUNT_BOOKSIZE_CONFIG, accountId, symbol)
+	_, err = cache.DeleteKey(key)
+	if err != nil {
+		return accountBooksize, err
+	}
+	return accountBooksize, nil
 }
 
 func SetCurrentBookSize(accountId string, symbol string, target_position, target_offset float64, is_disabled bool) (types.AccountBookSizeConfig, error) {

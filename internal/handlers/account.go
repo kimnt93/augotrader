@@ -9,15 +9,27 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// CreateLoginRequest is the request structure for creating a login
+// swagger:model
+// @name LoginInfo
+// @title LoginInfo
+// @description Login information for an account
+// @property accountId string true "Account ID"
+// @property consumerId string true "Consumer ID"
+// @property consumerSecret string true "Consumer Secret"
+// @property privateKey string true "Private Key"
+// @property authToken string true "Auth Token"
+// @property isPaperTrading bool true "Is Paper Trading"
+// @property isDisabled bool true "Is Disabled"
 type CreateLoginRequest = types.LoginInfo
 
-// @Summary Create a login entry
-// @Description Create a login entry using the provided login information
-// @Accept json
-// @Produce json
-// @Param loginInfo body LoginInfo true "Login information"
-// @Success 201 {object} CreateLoginResponse
-// @Router /login [post] or [put]
+// @Summary		Create a login entry
+// @Description	Create a login entry using the provided login information
+// @Accept			json
+// @Produce		json
+// @Param			loginInfo	body		LoginInfo	true	"Login information"
+// @Success		200			{object}	NewSuccessResponse[LoginInfo]
+// @Router			/login [post] or [put]
 func CreateLoginHandler(w http.ResponseWriter, r *http.Request) {
 	var loginInfo CreateLoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&loginInfo); err != nil {
@@ -49,11 +61,11 @@ func CreateLoginHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-// @Summary Get all login entries
-// @Description Get all login entries
-// @Produce json
-// @Success 200 {object} GetAllLoginsResponse
-// @Router /login [get]
+// @Summary		Get all login entries
+// @Description	Get all login entries
+// @Produce		json
+// @Success		200			{object}	NewSuccessResponse[LoginInfo]
+// @Router			/login [get]
 func GetAllLoginsHandler(w http.ResponseWriter, r *http.Request) {
 	loginInfos, err := services.GetAllLoginInfo()
 	if err != nil {
@@ -68,12 +80,12 @@ func GetAllLoginsHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// @Summary Get login entry by account ID
-// @Description Get login entry by account ID
-// @Produce json
-// @Param accountId path string true "Account ID"
-// @Success 200 {object} GetLoginByAccountIdResponse
-// @Router /login/{accountId} [get]
+// @Summary		Get login entry by account ID
+// @Description	Get login entry by account ID
+// @Produce		json
+// @Param			accountId	path		string	true	"Account ID"
+// @Success		200			{object}	NewSuccessResponse[LoginInfo]
+// @Router			/login/{accountId} [get]
 func GetLoginByAccountIdHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	accountId := vars["accountId"]
@@ -91,12 +103,12 @@ func GetLoginByAccountIdHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// @Summary Delete login entry by account ID
-// @Description Delete login entry by account ID
-// @Produce json
-// @Param accountId path string true "Account ID"
-// @Success 200 {object} DeleteLoginByAccountIdResponse
-// @Router /login/{accountId} [delete]
+// @Summary		Delete login entry by account ID
+// @Description	Delete login entry by account ID
+// @Produce		json
+// @Param			accountId	path		string	true	"Account ID"
+// @Success		200			{object}	NewSuccessResponse[LoginInfo]
+// @Router			/login/{accountId} [delete]
 func DeleteLoginInfoHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	accountId := vars["accountId"]

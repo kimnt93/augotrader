@@ -10,35 +10,88 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func GetTradingStrategyWeightByAccount(accountId string) ([]types.TradingStrategyWeight, error) {
-	key := fmt.Sprintf("%s.%s", static.CH_ACCOUNT_STRATEGY_WEIGHTS, accountId)
+func GetTradingStrategyWeights(accountId string, symbol string) ([]types.TradingStrategyWeight, error) {
+	result := []types.TradingStrategyWeight{}
+	key := fmt.Sprintf("%s.%s.%s.*", static.CH_ACCOUNT_STRATEGY_WEIGHTS, accountId, symbol)
 	// Use GET to retrieve the JSON string from Redis
-	jsonStr, err := cache.GetKeyStr(key)
+	keys, err := cache.GetKeys(key)
 	if err != nil {
-		return nil, err
+		return result, err
 	}
 
-	// Unmarshal the JSON string into a map
-	var result []types.TradingStrategyWeight
-	// Load into list
-	err = json.Unmarshal([]byte(jsonStr), &result)
-	if err != nil {
-		log.Error().Msgf("Failed to unmarshal JSON string (%s): %v", jsonStr, err)
-		return nil, err
+	for _, key := range keys {
+		jsonStr, err := cache.GetKeyStr(key)
+		if err != nil {
+			return result, err
+		}
+		accountSymbolStrategy := types.TradingStrategyWeight{}
+		err = json.Unmarshal([]byte(jsonStr), &accountSymbolStrategy)
+		if err != nil {
+			log.Error().Msgf("Failed to unmarshal accountSymbolStrategy (%s): %v", jsonStr, err)
+			return result, err
+		}
+		result = append(result, accountSymbolStrategy)
 	}
-
 	return result, nil
 }
 
-func SetTradingStrategyWeightByAccount(accountId string, weights []types.TradingStrategyWeight) (bool, error) {
-	key := fmt.Sprintf("%s.%s", static.CH_ACCOUNT_STRATEGY_WEIGHTS, accountId)
-	// Marshal the map into a JSON string
-	jsonStr, err := json.Marshal(weights)
+func SetTradingStrategyWeight(accountId string, symbol string, strategyName string, strategyWeight float64) (types.TradingStrategyWeight, error) {
+	key := fmt.Sprintf("%s.%s.%s.%s", static.CH_ACCOUNT_STRATEGY_WEIGHTS, accountId, symbol, strategyName)
+
+	accountSymbolStrategy := types.TradingStrategyWeight{
+		AccountId: accountId,
+		Symbol:    symbol,
+		Name:      strategyName,
+		Weight:    strategyWeight,
+	}
+
+	// Marshal the TradingStrategyWeight struct into a JSON string
+	accountSymbolStrategyStr, err := json.Marshal(accountSymbolStrategy)
 	if err != nil {
-		log.Error().Msgf("Failed to marshal map (%v): %v", weights, err)
-		return false, err
+		log.Error().Msgf("Failed to marshal accountSymbolStrategy (%v): %v", accountSymbolStrategy, err)
+		return types.TradingStrategyWeight{}, err
 	}
 
 	// Use SET to store the JSON string in Redis
-	return cache.SetKeyStr(key, jsonStr)
+	_, err = cache.SetKeyStr(key, accountSymbolStrategyStr)
+	if err != nil {
+		return types.TradingStrategyWeight{}, err
+	}
+
+	return accountSymbolStrategy, nil
+}
+
+func getTradingStrategyWeight(accountId string, symbol string, strategyName string) (types.TradingStrategyWeight, error) {
+	key := fmt.Sprintf("%s.%s.%s.%s", static.CH_ACCOUNT_STRATEGY_WEIGHTS, accountId, symbol, strategyName)
+
+	// Use GET to retrieve the JSON string from Redis
+	strategyStr, err := cache.GetKeyStr(key)
+	if err != nil {
+		return types.TradingStrategyWeight{}, err
+	}
+
+	// unmarsal the JSON string into the TradingStrategyWeight struct
+	accountSymbolStrategy := types.TradingStrategyWeight{}
+	err = json.Unmarshal([]byte(strategyStr), &accountSymbolStrategy)
+	if err != nil {
+		log.Error().Msgf("Failed to unmarshal accountSymbolStrategy (%s): %v", strategyStr, err)
+		return types.TradingStrategyWeight{}, err
+	}
+	return accountSymbolStrategy, nil
+}
+
+func DeleteTradingStrategyWeight(accountId string, symbol string, strategyName string) (types.TradingStrategyWeight, error) {
+	accountSymbolStrategy, err := getTradingStrategyWeight(accountId, symbol, strategyName)
+	if err == nil {
+		key := fmt.Sprintf("%s.%s.%s.%s", static.CH_ACCOUNT_STRATEGY_WEIGHTS, accountId, symbol, strategyName)
+		_, err := cache.DeleteKey(key)
+		if err != nil {
+			return accountSymbolStrategy, err
+		}
+
+		return accountSymbolStrategy, err
+	} else {
+		// Not found
+		return accountSymbolStrategy, nil
+	}
 }

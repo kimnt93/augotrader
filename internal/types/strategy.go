@@ -1,6 +1,8 @@
 package types
 
 type TradingStrategyWeight struct {
-	Weight float64 `json:"weight"`
-	Name   string  `json:"name"`
+	AccountId string  `json:"account_id"`
+	Symbol    string  `json:"symbol"`
+	Name      string  `json:"name"`
+	Weight    float64 `json:"weight"`
 }

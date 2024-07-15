@@ -18,7 +18,7 @@ dev/
 # Precompiled Headers
 *.gch
 *.pch
-.config/
+
 # Compiled Dynamic libraries
 *.so
 *.dylib

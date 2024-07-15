@@ -1,6 +1,7 @@
 package types
 
-type AccountLockedStatus struct {
+type AccountSymbolLockedStatus struct {
 	AccountId string `json:"account_id"`
+	Symbol    string `json:"symbol"`
 	IsLocked  bool   `json:"is_locked"`
 }
