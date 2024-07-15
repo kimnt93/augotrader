@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Strategy - Account Booksize Configuration</title>
+    <link rel="stylesheet" type="text/css" href="style/styles.css">
+</head>
+
+<body>
+    <h1 id="account-heading">Account Booksize Configuration</h1>
+    <table id="booksize-table" , border="1">
+        <tr>
+            <th>Symbol</th>
+            <th>Target Position</th>
+            <th>Offset</th>
+            <th>Is Disabled</th>
+            <th>Delete</th>
+        </tr>
+    </table>
+
+    <h2>Add/Edit Booksize</h2>
+    <form id="add-booksize-form">
+        <input type="hidden" id="account_id" name="account_id" value="">
+
+        <label for="symbol">Symbol:</label>
+        <input type="text" id="symbol" name="symbol" required><br>
+
+        <label for="target_position">Target Position:</label>
+        <input type="text" id="target_position" name="target_position" required><br>
+
+        <label for="target_offset">Offset:</label>
+        <input type="text" id="target_offset" name="target_offset" required><br>
+
+        <label for="is_disabled">Is Disabled:</label>
+        <input type="checkbox" id="is_disabled" name="is_disabled"><br>
+
+        <button type="submit">Add/Edit Booksize</button>
+    </form>
+
+
+    <h2 id="alpha-heading">List Alpha Weight</h2>
+    <table id="alpha-table" , border="1">
+        <tr>
+            <th>Alpha Name</th>
+            <th>Alpha Weight</th>
+            <th>Delete</th>
+        </tr>
+    </table>
+
+    <form id="add-alpha-form">
+        <input type="hidden" id="alpha_account_id" name="alpha_account_id" value="">
+        <input type="hidden" id="alpha_symbol" name="alpha_symbol" value="">
+
+        <input type="select" id="alpha_name" name="alpha_name" required><br>
+        <input type="text" id="alpha_weight" name="alpha_weight" required><br>
+
+        <button type="submit">Add Alpha Weight</button>
+    </form>
+
+    <script src="script/script.js"></script>
+
+    <script>
+        // Function to delete a booksize configuration
+        async function deleteBooksize(accountId, symbol) {
+            if (confirm("Are you sure you want to delete this booksize configuration?")) {
+                try {
+                    const response = await fetch('/api/v1/booksize', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ account_id: accountId, symbol: symbol }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+
+                    const responseData = await response.json();
+                    if (!responseData.success) {
+                        throw new Error(`API error: ${responseData.error}`);
+                    }
+
+                    // Reload the page to reflect changes
+                    window.location.reload();
+                } catch (error) {
+                    console.error('Error deleting booksize:', error);
+                }
+            }
+        }
+
+        async function deleteAlphaWeight(accountId, symbol, name) {
+            if (confirm("Are you sure you want to delete this alpha weight?")) {
+                try {
+                    const response = await fetch('/api/v1/trading/strategy', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ account_id: accountId, symbol: symbol, name: name }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+
+                    const responseData = await response.json();
+                    if (!responseData.success) {
+                        throw new Error(`API error: ${responseData.error}`);
+                    }
+
+                    // Reload the page to reflect changes
+                    window.location.reload();
+                } catch (error) {
+                    console.error('Error deleting alpha weight:', error);
+                }
+            }
+        }
+
+        async function fetchAlphaWeights(accountId, symbol) {
+            try {
+                const response = await fetch(`api/v1/trading/strategy/${accountId}/${symbol}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const responseData = await response.json();
+                if (!responseData.success) {
+                    throw new Error(`API error: ${responseData.error}`);
+                }
+
+                const data = responseData.data;
+                const table = document.getElementById('alpha-table');
+
+                // Clear the table content except the header row
+                while (table.rows.length > 1) {
+                    table.deleteRow(1);
+                }
+
+                data.forEach(alphaWeight => {
+                    const row = table.insertRow();
+                    row.onclick = () => {
+                        document.getElementById('alpha_account_id').value = alphaWeight.account_id;
+                        document.getElementById('alpha_symbol').value = alphaWeight.symbol;
+                        document.getElementById('alpha_name').value = alphaWeight.name;
+                        document.getElementById('alpha_weight').value = alphaWeight.weight;
+                    };
+
+                    const cell1 = row.insertCell(0);
+                    const cell2 = row.insertCell(1);
+                    const cell3 = row.insertCell(2);
+
+                    cell1.innerHTML = alphaWeight.name;
+                    cell2.innerHTML = alphaWeight.weight;
+                    cell3.innerHTML = `<a href="#" onclick="deleteAlphaWeight('${alphaWeight.account_id}', '${alphaWeight.symbol}', '${alphaWeight.name}')">Delete</a>`;
+                });
+            } catch (error) {
+                console.error('Error fetching alpha weights:', error);
+            }
+        }
+
+        // Function to fetch and display account booksize configurations
+        async function fetchBooksizeConfigurations(accountId) {
+            try {
+                const response = await fetch(`api/v1/booksize/${accountId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const responseData = await response.json();
+                if (!responseData.success) {
+                    throw new Error(`API error: ${responseData.error}`);
+                }
+
+                const data = responseData.data;
+                const table = document.getElementById('booksize-table');
+
+                data.forEach(bookConfig => {
+                    const row = table.insertRow();
+                    row.onclick = () => {
+                        document.getElementById('account_id').value = bookConfig.account_id;
+                        document.getElementById('symbol').value = bookConfig.symbol;
+                        document.getElementById('target_position').value = bookConfig.target_position;
+                        document.getElementById('target_offset').value = bookConfig.target_offset;
+                        document.getElementById('is_disabled').checked = bookConfig.is_disabled;
+                        // fill strategies table (alpha)
+                        document.getElementById('alpha-heading').innerText = `List Alpha Weight: ${bookConfig.symbol}`;
+                        document.getElementById('alpha_account_id').value = bookConfig.account_id; // hidden field
+                        document.getElementById('alpha_symbol').value = bookConfig.symbol; // hidden field
+                        fetchAlphaWeights(bookConfig.account_id, bookConfig.symbol);
+                    };
+
+                    const cell1 = row.insertCell(0);
+                    const cell2 = row.insertCell(1);
+                    const cell3 = row.insertCell(2);
+                    const cell4 = row.insertCell(3);
+                    const cell5 = row.insertCell(4);
+
+                    cell1.innerHTML = bookConfig.symbol;
+                    cell2.innerHTML = bookConfig.target_position;
+                    cell3.innerHTML = bookConfig.target_offset;
+                    cell4.innerHTML = bookConfig.is_disabled ? "Yes" : "No";
+                    cell5.innerHTML = `<a href="#" onclick="deleteBooksize('${bookConfig.account_id}', '${bookConfig.symbol}')">Delete</a>`;
+                });
+            } catch (error) {
+                console.error('Error fetching booksize configurations:', error);
+            }
+        }
+
+        // Function to handle adding new booksize configuration
+        async function addBooksizeConfiguration(event) {
+            event.preventDefault();
+
+            const accountId = document.getElementById('account_id').value;
+            const symbol = document.getElementById('symbol').value;
+            const targetPosition = document.getElementById('target_position').value;
+            const targetOffset = document.getElementById('target_offset').value;
+            const isDisabled = document.getElementById('is_disabled').checked;
+
+            const newBooksize = {
+                account_id: accountId,
+                symbol: symbol,
+                target_position: parseFloat(targetPosition),
+                target_offset: parseFloat(targetOffset),
+                is_disabled: isDisabled
+            };
+
+            try {
+                const response = await fetch('api/v1/booksize', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newBooksize)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const responseData = await response.json();
+                if (!responseData.success) {
+                    throw new Error(`API error: ${responseData.error}`);
+                }
+
+                // Reload the page after successful addition or edit
+                window.location.reload();
+            } catch (error) {
+                console.error('Error adding account:', error);
+            }
+        }
+
+        // Function to handle adding new booksize configuration
+        async function addAlphaWeight(event) {
+            event.preventDefault();
+
+            const accountId = document.getElementById('alpha_account_id').value;
+            const symbol = document.getElementById('alpha_symbol').value;
+            const alphaName = document.getElementById('alpha_name').value;
+            const alphaWeight = document.getElementById('alpha_weight').value;
+
+            const alpha = {
+                account_id: accountId,
+                symbol: symbol,
+                name: alphaName,
+                weight: parseFloat(alphaWeight)
+            };
+
+            try {
+                const response = await fetch('api/v1/trading/strategy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(alpha)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const responseData = await response.json();
+                if (!responseData.success) {
+                    throw new Error(`API error: ${responseData.error}`);
+                }
+
+                // Reload the page after successful addition or edit
+                window.location.reload();
+            } catch (error) {
+                console.error('Error adding account:', error);
+            }
+        }
+
+        // Initial setup when page loads
+        window.onload = function () {
+            // Add hidden fields
+            const accountId = getAccountIdFromUrl();
+            fetchBooksizeConfigurations(accountId);
+            document.getElementById('account-heading').innerText = "Account Booksize Configuration: " + accountId;
+            document.getElementById('account_id').value = accountId;
+            // submit add booksize (add new symbol, offset, etc...)
+            document.getElementById('add-booksize-form').addEventListener('submit', addBooksizeConfiguration);
+            document.getElementById('add-alpha-form').addEventListener('submit', addAlphaWeight);
+        };
+    </script>
+</body>
+
+</html>

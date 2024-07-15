@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Account List</title>
+    <link rel="stylesheet" type="text/css" href="style/styles.css">
+</head>
+
+<body>
+    <h1>Account List</h1>
+    <table id="accounts-table" border="1">
+        <tr>
+            <th>Account ID</th>
+            <th>Is Paper Trading</th>
+            <th>Is Disabled</th>
+            <th>Setup</th>
+        </tr>
+    </table>
+
+    <h2>Add/Edit Account</h2>
+    <form id="add-account-form">
+        <label for="account_id">Account ID:</label>
+        <input type="text" id="account_id" name="account_id" required><br>
+
+        <label for="consumer_id">Consumer ID:</label>
+        <input type="text" id="consumer_id" name="consumer_id" required><br>
+
+        <label for="consumer_secret">Consumer Secret:</label>
+        <input type="text" id="consumer_secret" name="consumer_secret" required><br>
+
+        <label for="private_key">Private Key:</label>
+        <input type="text" id="private_key" name="private_key"><br>
+
+        <label for="auth_token">Auth Token:</label>
+        <input type="text" id="auth_token" name="auth_token"><br>
+
+        <label for="is_paper_trading">Is Paper Trading:</label>
+        <input type="checkbox" id="is_paper_trading" name="is_paper_trading"><br>
+
+        <label for="is_disabled">Is Disabled:</label>
+        <input type="checkbox" id="is_disabled" name="is_disabled"><br>
+
+        <button type="submit">Add/Edit Account</button>
+    </form>
+
+    <script src="script/script.js"></script>
+    <script>
+        async function fetchAccounts() {
+            try {
+                const response = await fetch('api/v1/logins');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const responseData = await response.json();
+                if (!responseData.success) {
+                    throw new Error(`API error: ${responseData.error}`);
+                }
+
+                const data = responseData.data;
+                const table = document.getElementById('accounts-table');
+
+                data.forEach(accountConfig => {
+                    const row = table.insertRow();
+                    row.onclick = () => {
+                        document.getElementById('account_id').value = accountConfig.account_id;
+                        document.getElementById('consumer_id').value = accountConfig.consumer_id;
+                        document.getElementById('consumer_secret').value = accountConfig.consumer_secret;
+                        document.getElementById('private_key').value = accountConfig.private_key;
+                        document.getElementById('auth_token').value = accountConfig.auth_token;
+                        document.getElementById('is_paper_trading').checked = accountConfig.is_paper_trading;
+                        document.getElementById('is_disabled').checked = accountConfig.is_disabled;
+                    };
+
+                    const cell1 = row.insertCell(0);
+                    const cell2 = row.insertCell(1);
+                    const cell3 = row.insertCell(2);
+                    const cell4 = row.insertCell(3);
+
+                    cell1.innerHTML = accountConfig.account_id;
+                    cell2.innerHTML = accountConfig.is_paper_trading ? "Yes" : "No";
+                    cell3.innerHTML = accountConfig.is_disabled ? "Yes" : "No";
+                    cell4.innerHTML = `<a href="/booksize.html?account_id=${accountConfig.account_id}">Booksize</a>`;
+
+                });
+            } catch (error) {
+                console.error('Error fetching accounts:', error);
+            }
+        }
+
+        async function addAccount(event) {
+            event.preventDefault();
+
+            const accountId = document.getElementById('account_id').value;
+            const consumerId = document.getElementById('consumer_id').value;
+            const consumerSecret = document.getElementById('consumer_secret').value;
+            const privateKey = document.getElementById('private_key').value;
+            const authToken = document.getElementById('auth_token').value;
+            const isPaperTrading = document.getElementById('is_paper_trading').checked;
+            const isDisabled = document.getElementById('is_disabled').checked;
+
+            const newAccount = {
+                account_id: accountId,
+                consumer_id: consumerId,
+                consumer_secret: consumerSecret,
+                private_key: privateKey,
+                auth_token: authToken,
+                is_paper_trading: isPaperTrading,
+                is_disabled: isDisabled
+            };
+
+            try {
+                const response = await fetch('api/v1/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newAccount)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const responseData = await response.json();
+                if (!responseData.success) {
+                    throw new Error(`API error: ${responseData.error}`);
+                }
+
+                // Reload the page after successful addition or edit
+                window.location.reload();
+            } catch (error) {
+                console.error('Error adding account:', error);
+            }
+        }
+        window.onload = () => {
+            fetchAccounts();
+            document.getElementById('add-account-form').addEventListener('submit', addAccount);
+        };
+    </script>
+</body>
+
+</html>
